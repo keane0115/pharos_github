@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pharos-service
+  labels:
+    app: pharos-service
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: pharos-service
+  template:
+    metadata:
+      labels:
+        app: pharos-service
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - pharos-service
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      - env:
+        - name: START_TOPIC
+          value: "teamstart"
+        - name: CONVERTER_IP
+          value: "3.16.83.154"
+        - name: JUDING_TOOL_TOPIC
+          value: "teamreport3"
+        - name: TEAM_NAME
+          value: "pharos"
+        - name: PAYLOAD_SIZE
+          value: "100"
+        - name: KAFKA_BROKERS
+          value:"b-1.kafka-cluster.5ji72p.c2.kafka.us-east-2.amazonaws.com:9092,b-2.kafka-cluster.5ji72p.c2.kafka.us-east-2.amazonaws.com:9092,b-3.kafka-cluster.5ji72p.c2.kafka.us-east-2.amazonaws.com:9092"
+        name: pharos-service
+        image: pharos
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            memory: 512Mi
+          requests:
+            memory: 256Mi
+        
+
